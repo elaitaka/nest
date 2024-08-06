@@ -29,11 +29,7 @@ export class UsersService {
     return this.usersRepository.find({});
   }
 
-  async updateUser(userId: string, userUpdates: UpdateUserDto): Promise<User> {
-    return this.usersRepository.findOneAndUpdate({ userId }, userUpdates);
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
-  }
+  async delete(userId: string) {
+    return this.usersRepository.remove({userId});
+ }
 }

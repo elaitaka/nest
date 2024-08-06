@@ -16,20 +16,15 @@ export class UsersController {
         return this.usersService.createUser(createUserDto.email, createUserDto.name);
     }
 
-    @Patch(':userId')
-    async updateUser(@Param('userId') userId: string,
-        @Body() updateUserDto: UpdateUserDto): Promise<User> {
-            return this.usersService.updateUser(userId, updateUserDto);
-    }
-
     @Get(':userId')
     async getUser(@Param('userId') userId: string): Promise<User> {
-        return this.usersService.getUserById(userId);
+      console.log("HERE 1:", userId);  
+      return this.usersService.getUserById(userId);
     }
 
     @Get()
     async getUsers(): Promise<User[]> {
-        return []; //this.getUsers();
+        return this.usersService.getUsers();
     }
 }
 
