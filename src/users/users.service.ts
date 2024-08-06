@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { UsersRepository } from './users.reposotiry';
 import { User } from './schemas/user.schema';
-import { ProducerService } from 'src/queues/producer.service';
+import { ProducerService } from '../queues/producer.service';
 
 @Injectable()
 export class UsersService {
