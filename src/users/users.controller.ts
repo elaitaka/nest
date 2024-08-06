@@ -24,7 +24,6 @@ export class UsersController {
 
   @Get(':userId')
   async getUser(@Param('userId') userId: string): Promise<User> {
-    console.log('HERE 1:', userId);
     return this.usersService.getUserById(userId);
   }
 

@@ -3,10 +3,15 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { UsersRepository } from './users.reposotiry';
 import { User } from './schemas/user.schema';
+import { EmailService } from 'src/email/email.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly usersRepository: UsersRepository) {}
+  constructor(
+    private readonly usersRepository: UsersRepository,
+    private emailService: EmailService,
+  ) {}
+  // private producerService: ProducerService) { }
 
   async createUser(email: string, name: string): Promise<User> {
     const user = this.usersRepository.create({
@@ -14,6 +19,16 @@ export class UsersService {
       email: email,
       name: name,
     });
+
+    const emailData = {
+      email: email,
+      subject: 'Welcome to Our Community',
+      html: `<p>Hello ${name},</p>
+      <p>Welcome to our community! Your account is now active.</p>
+      <p>Enjoy your time with us!</p>`,
+    };
+    await this.emailService.sendEmail(emailData);
+
     return user;
   }
 
