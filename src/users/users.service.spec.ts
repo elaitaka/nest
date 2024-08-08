@@ -1,10 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getModelToken } from '@nestjs/mongoose';
 import { HttpStatus, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from './schemas/user.schema';
 import { UsersRepository } from './users.reposotiry';
-import { ProducerService } from '../queues/producer.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { mockUser, mockUsers } from '../utils/test-utils';
