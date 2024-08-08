@@ -2,16 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersRepository } from './users.reposotiry';
-import { CreateUserDto } from './dto/create-user.dto';
 import { v4 as uuidv4 } from 'uuid';
-import { mockUser, mockUsers } from '../utils/test-utils';
-
-export const mockAllUser: CreateUserDto = {
-  name: 'karl',
-  email: 'karl@gmail.com',
-};
-const mockId = '1';
-const mockWrongId = '2';
+import { mockId, mockUser, mockUsers, mockWrongId } from '../utils/test-utils';
 
 class MockedUsersRepository {
   constructor(private _: any) {}
