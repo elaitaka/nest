@@ -3,13 +3,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { UsersRepository } from './users.reposotiry';
 import { User } from './schemas/user.schema';
-//import { ProducerService } from '../queues/producer.service';
+import { ProducerService } from '../queues/producer.service';
 import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
-    //private producerService: ProducerService,
+    private producerService: ProducerService,
     private readonly usersRepository: UsersRepository,
   ) {}
 
@@ -20,7 +20,6 @@ export class UsersService {
       name: createUserDto.name,
     });
 
-    /*
     const emailData = {
       email: createUserDto.email,
       subject: 'Welcome to Our Community',
@@ -29,7 +28,6 @@ export class UsersService {
       <p>Enjoy your time with us!</p>`,
     };
     await this.producerService.addToEmailQueue(emailData);
-    */
 
     return user;
   }

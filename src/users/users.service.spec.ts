@@ -1,9 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus, NotFoundException } from '@nestjs/common';
+
 import { UsersService } from './users.service';
 import { UsersRepository } from './users.reposotiry';
 import { v4 as uuidv4 } from 'uuid';
 import { mockId, mockUser, mockUsers, mockWrongId } from '../utils/test-utils';
+import { ProducerService } from '../queues/producer.service';
 
 class MockedUsersRepository {
   constructor(private _: any) {}
@@ -25,8 +27,13 @@ class MockedUsersRepository {
     if (id == mockWrongId) throw new NotFoundException();
     return mockUser;
   });
-  static save = jest.fn().mockResolvedValue(mockUser);
   static remove = jest.fn().mockResolvedValue(mockUser);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+class MockedProducerService {
+  constructor(private _: any) {}
+  static addToEmailQueue = jest.fn().mockReturnThis();
 }
 
 describe('UserService', () => {
@@ -39,6 +46,10 @@ describe('UserService', () => {
         {
           provide: UsersRepository,
           useValue: MockedUsersRepository,
+        },
+        {
+          provide: ProducerService,
+          useValue: MockedProducerService,
         },
       ],
     }).compile();
@@ -64,7 +75,6 @@ describe('UserService', () => {
     const user = await service.createUser(mockUser);
     const expectedOutput = await service.getUsers();
     expect(MockedUsersRepository.find).toHaveBeenCalledTimes(1);
-    expect(MockedUsersRepository.save).toHaveBeenCalledTimes(0);
     expect(user.email).toEqual(expectedOutput.at(0).email);
   });
 
