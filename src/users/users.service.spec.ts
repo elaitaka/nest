@@ -1,169 +1,103 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
-import { createMock } from '@golevelup/ts-jest';
-import { Model, Query } from 'mongoose';
-
-import { User, UserDocument } from './schemas/user.schema';
+import { HttpStatus, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { User } from './schemas/user.schema';
 import { UsersRepository } from './users.reposotiry';
 import { ProducerService } from '../queues/producer.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { v4 as uuidv4 } from 'uuid';
+import { mockUser, mockUsers } from '../utils/test-utils';
 
-const mockUser = (
-  userId = '1',
-  name = 'Karl',
-  email = 'karl.lastname@gmail.com',
-): User => ({
-  userId,
-  name,
-  email,
-});
+export const mockAllUser: CreateUserDto = {
+  name: 'karl',
+  email: 'karl@gmail.com',
+};
+const mockId = '1';
+const mockIdError = 'error';
 
-const mockUserDocument = (mock?: Partial<User>): Partial<UserDocument> => ({
-  name: mock?.name || 'Karl',
-  _id: mock?.userId || '66b2025b8b50c08d9f7772ef',
-  email: mock?.email || 'karl.lastname@gmail.com',
-});
-
-const usersArray = [
-  mockUser(),
-  mockUser('2', 'Erik', 'erik.lastname@gmail.com'),
-  mockUser('3', 'Henrik', 'henrik.lastname@gmail.com'),
-];
-
-const UserDocumentArray: Partial<UserDocument>[] = [
-  mockUserDocument(),
-  mockUserDocument({
-    userId: '2',
-    name: 'Erik',
-    email: 'erik.lastname@gmail.com',
-  }),
-  mockUserDocument({
-    userId: '2',
-    name: 'Henrik',
-    email: 'henrik.lastname@gmail.com',
-  }),
-];
+class MockedUsersRepository {
+  constructor(private _: any) {}
+  new = jest.fn().mockResolvedValue({});
+  static create = jest
+    .fn()
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    .mockImplementation((userId: uuidv4, email: string, name: string) => {
+      return mockUser;
+    });
+  static find = jest.fn().mockImplementation(() => {
+    return mockUsers;
+  });
+  static findOneAndDelete = jest.fn().mockImplementation((id: string) => {
+    if (id == mockIdError) throw new NotFoundException();
+    return this;
+  });
+  static findOne = jest.fn().mockImplementation((id: string) => {
+    if (id == mockIdError) throw new NotFoundException();
+    return mockUser;
+  });
+  static save = jest.fn().mockResolvedValue(mockUser);
+  static remove = jest.fn().mockResolvedValue(mockUser);
+}
 
 describe('UserService', () => {
   let service: UsersService;
-  let model: Model<UserDocument>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
-        ProducerService,
-        UsersRepository,
         {
-          provide: getModelToken('User'),
-          useValue: {
-            create: jest.fn(),
-            findOne: jest.fn(),
-            find: jest.fn(),
-            remove: jest.fn(),
-            exec: jest.fn(),
-          },
+          provide: UsersRepository,
+          useValue: MockedUsersRepository,
         },
       ],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    //model = module.get<Model<UserDocument>>(getModelToken('User'));
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  /*
-  it('should return all users', async () => {
-    jest.spyOn(model, 'find').mockReturnValue({
-      exec: jest.fn().mockResolvedValueOnce(UserDocumentArray),
-    } as unknown as Query<UserDocument[], UserDocument>);
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
 
-    const users = await service.getUsers();
-    expect(users).toEqual(usersArray);
+  it('create new user', async () => {
+    const expectedOutput = await service.createUser(mockUser);
+    expect(MockedUsersRepository.create).toHaveBeenCalledTimes(1);
+    expect(expectedOutput).toEqual(mockUser);
+  });
+
+  it('find all users', async () => {
+    const user = await service.createUser(mockUser);
+    const expectedOutput = await service.getUsers();
+    expect(MockedUsersRepository.find).toHaveBeenCalledTimes(1);
+    expect(MockedUsersRepository.save).toHaveBeenCalledTimes(0);
+    expect(user.email).toEqual(expectedOutput.at(0).email);
   });
 
   
-  it('should getOne by id', async () => {
-    jest.spyOn(model, 'findOne').mockReturnValueOnce(
-      createMock<Query<CatDoc, CatDoc>>({
-        exec: jest
-          .fn()
-          .mockResolvedValueOnce(mockCatDoc({ name: 'Ventus', id: 'an id' })),
-      }),
-    );
-    const findMockCat = mockCat('Ventus', 'an id');
-    const foundCat = await service.getOne('an id');
-    expect(foundCat).toEqual(findMockCat);
-  });
-  it('should getOne by name', async () => {
-    jest.spyOn(model, 'findOne').mockReturnValueOnce(
-      createMock<Query<CatDoc, CatDoc>>({
-        exec: jest
-          .fn()
-          .mockResolvedValueOnce(
-            mockCatDoc({ name: 'Mufasa', id: 'the dead king' }),
-          ),
-      }),
-    );
-    const findMockCat = mockCat('Mufasa', 'the dead king');
-    const foundCat = await service.getOneByName('Mufasa');
-    expect(foundCat).toEqual(findMockCat);
-  });
-  it('should insert a new cat', async () => {
-    jest.spyOn(model, 'create').mockImplementationOnce(() =>
-      Promise.resolve({
-        _id: 'some id',
-        name: 'Oliver',
-        age: 1,
-        breed: 'Tabby',
-      }),
-    );
-    const newCat = await service.insertOne({
-      name: 'Oliver',
-      age: 1,
-      breed: 'Tabby',
-    });
-    expect(newCat).toEqual(mockCat('Oliver', 'some id', 1, 'Tabby'));
-  });
-  // jest is complaining about findOneAndUpdate. Can't say why at the moment.
-  it.skip('should update a cat successfully', async () => {
-    jest.spyOn(model, 'findOneAndUpdate').mockReturnValueOnce(
-      createMock<Query<CatDoc, CatDoc>>({
-        exec: jest.fn().mockResolvedValueOnce({
-          _id: lasagna,
-          name: 'Garfield',
-          breed: 'Tabby',
-          age: 42,
-        }),
-      }),
-    );
-    const updatedCat = await service.updateOne({
-      _id: lasagna,
-      name: 'Garfield',
-      breed: 'Tabby',
-      age: 42,
-    });
-    expect(updatedCat).toEqual(mockCat('Garfield', lasagna, 42, 'Tabby'));
-  });
-  it('should delete a cat successfully', async () => {
-    // really just returning a truthy value here as we aren't doing any logic with the return
-    jest.spyOn(model, 'remove').mockResolvedValueOnce(true as any);
-    expect(await service.deleteOne('a bad id')).toEqual({ deleted: true });
-  });
-  it('should not delete a cat', async () => {
-    // really just returning a falsy value here as we aren't doing any logic with the return
-    jest.spyOn(model, 'remove').mockRejectedValueOnce(new Error('Bad delete'));
-    expect(await service.deleteOne('a bad id')).toEqual({
-      deleted: false,
-      message: 'Bad delete',
+  describe('Get User', () => {
+    it('find user by id', async () => {
+      const expectedOutput = await service.getUserById(mockId);
+      expect(MockedUsersRepository.findOne).toHaveBeenCalledTimes(1);
+      expect(mockUser.name).toEqual(expectedOutput.name);
     });
   });
-  */
+    /*
+    it('throw NotFoundException', async () => {
+      try {
+        await service.getUserById(mockIdError);
+      } catch (error: any) {
+        expect(error.message).toEqual('Not Found');
+        expect(error.status).toEqual(HttpStatus.NOT_FOUND);
+        expect(error.name).toEqual('NotFoundException');
+      }
+    });
+  });
+  // ... unit test for update and delete functionality will have similar implementation
+*/
 });
