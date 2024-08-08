@@ -13,10 +13,7 @@ export class UsersController {
     @Body()
     createUserDto: CreateUserDto,
   ): Promise<User> {
-    return this.usersService.createUser(
-      createUserDto.email,
-      createUserDto.name,
-    );
+    return this.usersService.createUser(createUserDto);
   }
 
   @Get(':userId')

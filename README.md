@@ -48,6 +48,10 @@ $ npm run start:prod
 ## Test
 
 ```bash
+# mock for unit test
+$ npm install @golevelup/nestjs-modules
+$ npm i nestjs-pino pino-http
+
 # unit tests
 $ npm run test
 
