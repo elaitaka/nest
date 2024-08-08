@@ -14,7 +14,7 @@ export const mockAllUser: CreateUserDto = {
   email: 'karl@gmail.com',
 };
 const mockId = '1';
-const mockIdError = 'error';
+const mockWrongId = '2';
 
 class MockedUsersRepository {
   constructor(private _: any) {}
@@ -29,11 +29,11 @@ class MockedUsersRepository {
     return mockUsers;
   });
   static findOneAndDelete = jest.fn().mockImplementation((id: string) => {
-    if (id == mockIdError) throw new NotFoundException();
+    if (id == mockWrongId) throw new NotFoundException();
     return this;
   });
   static findOne = jest.fn().mockImplementation((id: string) => {
-    if (id == mockIdError) throw new NotFoundException();
+    if (id == mockWrongId) throw new NotFoundException();
     return mockUser;
   });
   static save = jest.fn().mockResolvedValue(mockUser);
@@ -79,18 +79,16 @@ describe('UserService', () => {
     expect(user.email).toEqual(expectedOutput.at(0).email);
   });
 
-  
   describe('Get User', () => {
     it('find user by id', async () => {
       const expectedOutput = await service.getUserById(mockId);
       expect(MockedUsersRepository.findOne).toHaveBeenCalledTimes(1);
       expect(mockUser.name).toEqual(expectedOutput.name);
     });
-  });
-    /*
+
     it('throw NotFoundException', async () => {
       try {
-        await service.getUserById(mockIdError);
+        await service.getUserById(mockWrongId);
       } catch (error: any) {
         expect(error.message).toEqual('Not Found');
         expect(error.status).toEqual(HttpStatus.NOT_FOUND);
@@ -98,6 +96,4 @@ describe('UserService', () => {
       }
     });
   });
-  // ... unit test for update and delete functionality will have similar implementation
-*/
 });
