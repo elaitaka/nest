@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { LoggerModule } from 'nestjs-pino';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { mockUser, mockId } from '../utils/test-utils';
+import { mockUser, mockUserId } from '../utils/test-utils';
 
 const mockOrderService = {
   createUser: jest.fn().mockReturnValue(mockUser),
@@ -52,16 +52,16 @@ describe('UserController', () => {
   });
 
   it('should find user data by id', async () => {
-    const expectedOutput = await controller.getUser(mockId);
+    const expectedOutput = await controller.getUser(mockUserId);
     expect(service.getUserById).toHaveBeenCalledTimes(1);
-    expect(service.getUserById).toHaveBeenCalledWith(mockId);
+    expect(service.getUserById).toHaveBeenCalledWith(mockUserId);
     expect(expectedOutput).toEqual(mockUser);
   });
 
   it('should delete user data by id', async () => {
-    const expectedOutput = await controller.remove(mockId);
+    const expectedOutput = await controller.remove(mockUserId);
     expect(service.delete).toHaveBeenCalledTimes(1);
-    expect(service.delete).toHaveBeenCalledWith(mockId);
+    expect(service.delete).toHaveBeenCalledWith(mockUserId);
     expect(expectedOutput).toEqual(mockUser);
   });
 });

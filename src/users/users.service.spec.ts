@@ -4,7 +4,12 @@ import { HttpStatus, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersRepository } from './users.reposotiry';
 import { v4 as uuidv4 } from 'uuid';
-import { mockId, mockUser, mockUsers, mockWrongId } from '../utils/test-utils';
+import {
+  mockUserId,
+  mockUser,
+  mockWrongUserId,
+  mockAllUsers,
+} from '../utils/test-utils';
 import { ProducerService } from '../queues/producer.service';
 
 class MockedUsersRepository {
@@ -17,14 +22,14 @@ class MockedUsersRepository {
       return mockUser;
     });
   static find = jest.fn().mockImplementation(() => {
-    return mockUsers;
+    return mockAllUsers;
   });
   static findOneAndDelete = jest.fn().mockImplementation((id: string) => {
-    if (id == mockWrongId) throw new NotFoundException();
+    if (id == mockWrongUserId) throw new NotFoundException();
     return this;
   });
   static findOne = jest.fn().mockImplementation((id: string) => {
-    if (id == mockWrongId) throw new NotFoundException();
+    if (id == mockWrongUserId) throw new NotFoundException();
     return mockUser;
   });
   static remove = jest.fn().mockResolvedValue(mockUser);
@@ -80,14 +85,14 @@ describe('UserService', () => {
 
   describe('Get User', () => {
     it('find user by id', async () => {
-      const expectedOutput = await service.getUserById(mockId);
+      const expectedOutput = await service.getUserById(mockUserId);
       expect(MockedUsersRepository.findOne).toHaveBeenCalledTimes(1);
       expect(mockUser.name).toEqual(expectedOutput.name);
     });
 
     it('throw NotFoundException', async () => {
       try {
-        await service.getUserById(mockWrongId);
+        await service.getUserById(mockWrongUserId);
       } catch (error: any) {
         expect(error.message).toEqual('Not Found');
         expect(error.status).toEqual(HttpStatus.NOT_FOUND);
