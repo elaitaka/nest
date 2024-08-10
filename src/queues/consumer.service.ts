@@ -1,13 +1,15 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import amqp, { ChannelWrapper } from 'amqp-connection-manager';
 import { ConfirmChannel } from 'amqplib';
-import { EmailService } from 'src/email/email.service';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class ConsumerService implements OnModuleInit {
   private channelWrapper: ChannelWrapper;
   private readonly logger = new Logger(ConsumerService.name);
+
   constructor(private emailService: EmailService) {
+    console.log('Here: ');
     const connection = amqp.connect(['amqp://localhost']);
     this.channelWrapper = connection.createChannel();
   }

@@ -30,6 +30,11 @@
 
 ```bash
 $ npm install
+$ npm install ---save @golevelup/nestjs-rabbitmq
+# mock for unit test
+$ npm install @golevelup/nestjs-modules
+$ npm i nestjs-pino pino-http
+$ npm install jest-mock-extended --save-dev
 ```
 
 ## Running the app
@@ -48,10 +53,6 @@ $ npm run start:prod
 ## Test
 
 ```bash
-# mock for unit test
-$ npm install @golevelup/nestjs-modules
-$ npm i nestjs-pino pino-http
-
 # unit tests
 $ npm run test
 
