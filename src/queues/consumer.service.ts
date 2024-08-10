@@ -9,7 +9,6 @@ export class ConsumerService implements OnModuleInit {
   private readonly logger = new Logger(ConsumerService.name);
 
   constructor(private emailService: EmailService) {
-    console.log('Here: ');
     const connection = amqp.connect(['amqp://localhost']);
     this.channelWrapper = connection.createChannel();
   }

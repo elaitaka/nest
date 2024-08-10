@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 
 import { ConsumerService } from './consumer.service';
 import { MockAmqpConnection } from '../utils/MockAmqpConnection';
 import { EmailService } from '../email/email.service';
+import amqp from 'amqp-connection-manager';
 
 class MockedEmailService {
   constructor(private _: any) {}
@@ -22,38 +22,13 @@ describe('UserService', () => {
           useValue: MockedEmailService,
         },
         {
-          provide: AmqpConnection,
+          provide: amqp.connect,
           useClass: MockAmqpConnection,
         },
       ],
     }).compile();
 
     service = module.get<ConsumerService>(ConsumerService);
-  });
-
-  beforeAll(() => {
-    const mData = {
-      content: 'teresa teng',
-    };
-    const mChannel = {
-      assertQueue: jest.fn(),
-      consume: jest.fn().mockImplementation((queue, callback) => {
-        callback(mData);
-      }),
-    };
-    const mConnection = {
-      createChannel: jest.fn().mockImplementation((callback) => {
-        callback(null, mChannel);
-      }),
-    };
-    /*
-    jest
-      .spyOn(amqp, 'connect')
-      .mockImplementation((url, callback) => callback(null, mConnection));
-    */
-    const mIO = {
-      emit: jest.fn(),
-    };
   });
 
   afterEach(() => {

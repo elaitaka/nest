@@ -9,6 +9,7 @@ class MockAmqpConnection {
   async disconnect(): Promise<void> {
     this._connected = false;
   }
+  static connect = jest.fn().mockResolvedValue({});
 }
 
 export { MockAmqpConnection };
