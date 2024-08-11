@@ -14,7 +14,7 @@ describe('EmailService', () => {
         {
           provide: MailerService,
           useValue: {
-            sendMail: jest.fn(),
+            sendMail: jest.fn().mockReturnValue('karl@gmail.com'),
           },
         },
       ],
@@ -25,5 +25,14 @@ describe('EmailService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('send email', async () => {
+    const expectedOutput = await service.sendEmail({
+      email: 'karl@gmail.com',
+      subject: 'information',
+      html: 'Winter holiday',
+    });
+    expect(expectedOutput).toContain('karl@gmail.com');
   });
 });
