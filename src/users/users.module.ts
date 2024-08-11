@@ -5,7 +5,7 @@ import { User, UserSchema } from './schemas/user.schema';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { UsersRepository } from './users.reposotiry';
-import { QueueModule } from 'src/queues/queue.module';
+import { QueueModule } from '../queues/queue.module';
 
 @Module({
   imports: [
