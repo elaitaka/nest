@@ -24,7 +24,8 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+The application creates a new user in the Mongo database. 
+After which sends an email to the created user and sends an event to RabbitMQ
 
 ## Installation
 
@@ -37,6 +38,7 @@
 ```bash
 $ npm install
 $ npm install ---save @golevelup/nestjs-rabbitmq
+$ npm i -D @types/multer
 
 # mock for unit test
 $ npm install @golevelup/nestjs-modules
